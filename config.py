@@ -1,0 +1,71 @@
+"""
+Configuration settings and constants for the Network Packet Flow Visualizer
+"""
+
+# Window Settings
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
+WINDOW_TITLE = "Computer Networks Packet Flow Visualizer (2D)"
+FPS_TARGET = 60
+
+# Simulation Settings
+DEFAULT_SIMULATION_SPEED = 1.0
+MIN_SIMULATION_SPEED = 0.1
+MAX_SIMULATION_SPEED = 10.0
+PACKET_GENERATION_INTERVAL = 0.5  # seconds (Steady flow, use 'C' to force congestion)
+MAX_PACKETS_IN_FLIGHT = 100  # Increased limit
+
+# Network Settings
+DEFAULT_LINK_BANDWIDTH = 100  # Mbps
+DEFAULT_LINK_LATENCY = 10  # ms
+DEFAULT_QUEUE_SIZE = 20
+PACKET_SIZE = 1500  # bytes
+
+# Graphics Settings
+BACKGROUND_COLOR = (0.05, 0.05, 0.1, 1.0)
+GRID_SIZE = 20
+GRID_SPACING = 1.0
+
+# Node Visualization
+NODE_RADIUS = 0.3
+NODE_COLOR_DEFAULT = (0.2, 0.6, 0.9, 1.0)
+NODE_COLOR_ACTIVE = (0.9, 0.3, 0.2, 1.0)
+NODE_COLOR_SELECTED = (0.3, 0.9, 0.3, 1.0)
+NODE_SEGMENTS = 32
+
+# Link Visualization
+LINK_WIDTH = 0.05
+LINK_COLOR = (0.4, 0.4, 0.5, 0.6)
+LINK_COLOR_ACTIVE = (0.9, 0.7, 0.2, 0.9)
+
+# Packet Visualization
+PACKET_SIZE_VISUAL = 0.15
+PACKET_COLOR = (0.9, 0.5, 0.2, 1.0)
+PACKET_TRAIL_LENGTH = 10
+
+# Camera Settings
+CAMERA_DISTANCE = 15.0
+CAMERA_MIN_DISTANCE = 5.0
+CAMERA_MAX_DISTANCE = 50.0
+CAMERA_ROTATION_SPEED = 0.5
+CAMERA_ZOOM_SPEED = 1.0
+
+# Animation Settings
+ANIMATION_SMOOTHNESS = 0.1
+BEZIER_CURVE_SEGMENTS = 50
+
+# UI Settings
+UI_FONT_SIZE = 16
+UI_PADDING = 10
+UI_PANEL_WIDTH = 300
+UI_PANEL_ALPHA = 0.9
+
+# Colors (RGB)
+COLOR_WHITE = (1.0, 1.0, 1.0)
+COLOR_BLACK = (0.0, 0.0, 0.0)
+COLOR_RED = (1.0, 0.0, 0.0)
+COLOR_GREEN = (0.0, 1.0, 0.0)
+COLOR_BLUE = (0.0, 0.0, 1.0)
+COLOR_YELLOW = (1.0, 1.0, 0.0)
+COLOR_CYAN = (0.0, 1.0, 1.0)
+COLOR_MAGENTA = (1.0, 0.0, 1.0)

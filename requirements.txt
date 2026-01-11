@@ -1,0 +1,8 @@
+# Core Dependencies
+PyOpenGL>=3.1.0
+glfw>=2.5.0
+numpy>=1.21.0
+pyrr>=0.10.3
+
+# UI and Graphics
+Pillow>=9.0.0

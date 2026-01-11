@@ -1,0 +1,122 @@
+{
+  "topologies": [
+    {
+      "name": "Simple 3-Node Network",
+      "description": "Basic linear topology with 3 nodes",
+      "nodes": [
+        {
+          "id": "A",
+          "type": "router",
+          "name": "Router A",
+          "position": [-3.0, 0.0, 0.0]
+        },
+        {
+          "id": "B",
+          "type": "router",
+          "name": "Router B",
+          "position": [0.0, 0.0, 0.0]
+        },
+        {
+          "id": "C",
+          "type": "router",
+          "name": "Router C",
+          "position": [3.0, 0.0, 0.0]
+        }
+      ],
+      "links": [
+        { "id": "link_AB", "source": "A", "target": "B", "bandwidth": 100, "latency": 10, "bidirectional": true },
+        { "id": "link_BC", "source": "B", "target": "C", "bandwidth": 100, "latency": 10, "bidirectional": true }
+      ]
+    },
+    {
+      "name": "Star Topology",
+      "description": "Star topology with central hub",
+      "nodes": [
+        { "id": "HUB", "type": "switch", "name": "Central Hub", "position": [0.0, 0.0, 0.0] },
+        { "id": "N1", "type": "host", "name": "Node 1", "position": [3.0, 0.0, 0.0] },
+        { "id": "N2", "type": "host", "name": "Node 2", "position": [0.927, 0.0, 2.853] },
+        { "id": "N3", "type": "host", "name": "Node 3", "position": [-2.427, 0.0, 1.763] },
+        { "id": "N4", "type": "host", "name": "Node 4", "position": [-2.427, 0.0, -1.763] },
+        { "id": "N5", "type": "host", "name": "Node 5", "position": [0.927, 0.0, -2.853] }
+      ],
+      "links": [
+        { "id": "L1", "source": "HUB", "target": "N1", "bandwidth": 100, "latency": 5, "bidirectional": true },
+        { "id": "L2", "source": "HUB", "target": "N2", "bandwidth": 100, "latency": 5, "bidirectional": true },
+        { "id": "L3", "source": "HUB", "target": "N3", "bandwidth": 100, "latency": 5, "bidirectional": true },
+        { "id": "L4", "source": "HUB", "target": "N4", "bandwidth": 100, "latency": 5, "bidirectional": true },
+        { "id": "L5", "source": "HUB", "target": "N5", "bandwidth": 100, "latency": 5, "bidirectional": true }
+      ]
+    },
+    {
+      "name": "Diamond Rerouting Test",
+      "description": "Perfect for testing adaptive routing. Packets go A->D via B or C.",
+      "nodes": [
+        { "id": "A", "type": "host", "name": "Source A", "position": [-4.0, 0.0, 0.0] },
+        { "id": "B", "type": "router", "name": "Router B", "position": [0.0, 0.0, 2.0] },
+        { "id": "C", "type": "router", "name": "Router C", "position": [0.0, 0.0, -2.0] },
+        { "id": "D", "type": "host", "name": "Dest D", "position": [4.0, 0.0, 0.0] }
+      ],
+      "links": [
+        { "id": "AB", "source": "A", "target": "B", "bandwidth": 100, "latency": 10 },
+        { "id": "AC", "source": "A", "target": "C", "bandwidth": 100, "latency": 10 },
+        { "id": "BD", "source": "B", "target": "D", "bandwidth": 100, "latency": 10 },
+        { "id": "CD", "source": "C", "target": "D", "bandwidth": 100, "latency": 10 }
+      ]
+    },
+    {
+      "name": "Redundant Triangle",
+      "description": "Tests direct vs indirect paths. Select A, bypass B to reach C.",
+      "nodes": [
+        { "id": "A", "type": "host", "name": "Node A", "position": [-3.0, 0.0, 2.0] },
+        { "id": "B", "type": "router", "name": "Node B", "position": [0.0, 0.0, 0.0] },
+        { "id": "C", "type": "host", "name": "Node C", "position": [-3.0, 0.0, -2.0] }
+      ],
+      "links": [
+        { "id": "AB", "source": "A", "target": "B", "bandwidth": 100, "latency": 5 },
+        { "id": "BC", "source": "B", "target": "C", "bandwidth": 100, "latency": 5 },
+        { "id": "AC", "source": "A", "target": "C", "bandwidth": 100, "latency": 20 }
+      ]
+    },
+    {
+      "name": "Dual Highway Comparison",
+      "description": "Tests long low-latency path vs short high-latency path. Select S to reach D.",
+      "nodes": [
+        { "id": "S", "type": "host", "name": "Source S", "position": [-5.0, 0.0, 0.0] },
+        { "id": "U1", "type": "router", "name": "Upper 1", "position": [-2.0, 0.0, 2.0] },
+        { "id": "U2", "type": "router", "name": "Upper 2", "position": [2.0, 0.0, 2.0] },
+        { "id": "L1", "type": "router", "name": "Lower 1", "position": [-3.0, 0.0, -2.0] },
+        { "id": "L2", "type": "router", "name": "Lower 2", "position": [-1.0, 0.0, -2.0] },
+        { "id": "L3", "type": "router", "name": "Lower 3", "position": [1.0, 0.0, -2.0] },
+        { "id": "L4", "type": "router", "name": "Lower 4", "position": [3.0, 0.0, -2.0] },
+        { "id": "D", "type": "host", "name": "Dest D", "position": [5.0, 0.0, 0.0] }
+      ],
+      "links": [
+        { "id": "S_U1", "source": "S", "target": "U1", "bandwidth": 100, "latency": 15 },
+        { "id": "U1_U2", "source": "U1", "target": "U2", "bandwidth": 100, "latency": 15 },
+        { "id": "U2_D", "source": "U2", "target": "D", "bandwidth": 100, "latency": 15 },
+        { "id": "S_L1", "source": "S", "target": "L1", "bandwidth": 100, "latency": 5 },
+        { "id": "L1_L2", "source": "L1", "target": "L2", "bandwidth": 100, "latency": 5 },
+        { "id": "L2_L3", "source": "L2", "target": "L3", "bandwidth": 100, "latency": 5 },
+        { "id": "L3_L4", "source": "L3", "target": "L4", "bandwidth": 100, "latency": 5 },
+        { "id": "L4_D", "source": "L4", "target": "D", "bandwidth": 100, "latency": 5 }
+      ]
+    },
+    {
+      "name": "Bottleneck Bridge",
+      "description": "Two networks connected by a single Bridge node. Congest BRIDGE to stop L->R traffic.",
+      "nodes": [
+        { "id": "L1", "type": "host", "name": "Left 1", "position": [-4.0, 0.0, 2.0] },
+        { "id": "L2", "type": "host", "name": "Left 2", "position": [-4.0, 0.0, -2.0] },
+        { "id": "BRIDGE", "type": "router", "name": "Bridge", "position": [0.0, 0.0, 0.0] },
+        { "id": "R1", "type": "host", "name": "Right 1", "position": [4.0, 0.0, 2.0] },
+        { "id": "R2", "type": "host", "name": "Right 2", "position": [4.0, 0.0, -2.0] }
+      ],
+      "links": [
+        { "id": "L1_B", "source": "L1", "target": "BRIDGE", "bandwidth": 100, "latency": 10 },
+        { "id": "L2_B", "source": "L2", "target": "BRIDGE", "bandwidth": 100, "latency": 10 },
+        { "id": "B_R1", "source": "BRIDGE", "target": "R1", "bandwidth": 100, "latency": 10 },
+        { "id": "B_R2", "source": "BRIDGE", "target": "R2", "bandwidth": 100, "latency": 10 }
+      ]
+    }
+  ]
+}
