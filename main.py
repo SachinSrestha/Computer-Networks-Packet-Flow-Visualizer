@@ -10,6 +10,7 @@ import glfw
 from OpenGL.GL import *
 from OpenGL.GLUT import glutInit
 
+import numpy as np
 from core.network import Network, Node, Link
 from core.packet import Packet
 from simulation.engine import SimulationEngine
@@ -33,6 +34,8 @@ class PacketFlowVisualizer:
         # Topology management
         self.topologies = []
         self.current_topology_index = 0
+        self.link_source_id = None  # ID of the source node when creating a link
+        self.node_counter = 1      # Used for naming new nodes
         
         # Application state
         self.is_running = True
@@ -235,6 +238,34 @@ class PacketFlowVisualizer:
                     print(f"  Packets Forwarded: {node.packets_forwarded}")
                     print(f"  Packets Dropped: {node.packets_dropped}")
                 print(f"{'='*50}\n")
+            
+            # Link completion logic
+            if self.link_source_id:
+                if selected_id and selected_id != self.link_source_id:
+                    link_id = f"Link_{self.link_source_id}_{selected_id}"
+                    # Check if link already exists
+                    if not self.network.get_link_between(self.link_source_id, selected_id):
+                        source_node = self.network.get_node(self.link_source_id)
+                        target_node = self.network.get_node(selected_id)
+                        
+                        # Calculate distance-based latency (e.g., 5ms per world unit for better feel)
+                        # We use 3D positions but Y is always 0 in our 2D view
+                        pos1 = source_node.position
+                        pos2 = target_node.position
+                        distance = float(np.linalg.norm(pos1 - pos2))
+                        latency = max(1.0, distance * 5.0) # Ensure at least 1ms latency
+                        
+                        new_link = Link(link_id, self.link_source_id, selected_id, latency=latency)
+                        self.network.add_link(new_link)
+                        print(f"Created link: {self.link_source_id} <-> {selected_id} (Cost: {latency:.1f})")
+                        self.simulation.routing_algorithm.update_routing_tables()
+                    else:
+                        print("Link already exists!")
+                
+                # Reset link creation mode regardless of whether a link was created
+                self.link_source_id = None
+                self.renderer.link_source_pos = None
+                self.ui.status_message = ""
         
         self.renderer.handle_mouse_button(button, action, x, y, self.network)
     
@@ -375,6 +406,53 @@ class PacketFlowVisualizer:
                     print("Error: Need at least 2 nodes to inject a packet.")
             else:
                 print("No node selected! Select a source node first.")
+
+        elif command == "add_node":
+            # Get current mouse position
+            mx, my = glfw.get_cursor_pos(self.window)
+            wx, wy = self.renderer.screen_to_world(mx, my)
+            
+            # Find a unique ID
+            while f"N{self.node_counter}" in self.network.nodes:
+                self.node_counter += 1
+            node_id = f"N{self.node_counter}"
+            
+            # Create and add node (position is [x, y, z], we use wy for z in 2D)
+            new_node = Node(node_id, (wx, 0.0, wy), "router", f"Node {node_id}")
+            self.network.add_node(new_node)
+            self.simulation.routing_algorithm.update_routing_tables()
+            print(f"Added Node {node_id} at ({wx:.2f}, {wy:.2f})")
+            self.node_counter += 1
+
+        elif command == "start_link":
+            selected_id = self.renderer.selected_node_id
+            if selected_id:
+                self.link_source_id = selected_id
+                # Pass source position to renderer for visual feedback
+                source_node = self.network.get_node(selected_id)
+                self.renderer.link_source_pos = (source_node.position[0], source_node.position[2])
+                self.ui.status_message = "LINK MODE: Select target node"
+                print(f"Link Mode: Select target node to connect with {selected_id}")
+            else:
+                self.ui.status_message = "SELECT A SOURCE NODE FIRST"
+                print("Select a source node first!")
+
+        elif command == "remove_node":
+            selected_id = self.renderer.selected_node_id
+            if selected_id:
+                self.network.remove_node(selected_id)
+                self.renderer.selected_node_id = None
+                self.simulation.routing_algorithm.update_routing_tables()
+                print(f"Removed Node {selected_id}")
+            else:
+                print("No node selected to remove!")
+
+        elif command == "clear_topology":
+            self.network.clear()
+            self.renderer.selected_node_id = None
+            self.simulation.routing_algorithm.update_routing_tables()
+            print("Cleared entire topology")
+
     
     def run(self):
         """Main application loop"""

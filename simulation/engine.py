@@ -226,11 +226,13 @@ class SimulationEngine:
         next_node = self.network.get_node(packet.next_hop_id)
         
         if not current_node or not next_node:
+            packet.mark_dropped("Topology changed: node removed")
             return
         
         # Get link to determine speed
         link = self.network.get_link_between(packet.current_node_id, packet.next_hop_id)
         if not link:
+            packet.mark_dropped("Topology changed: link removed")
             return
         
         # Calculate movement speed based on link properties

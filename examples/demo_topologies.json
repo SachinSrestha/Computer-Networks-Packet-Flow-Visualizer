@@ -117,6 +117,12 @@
         { "id": "B_R1", "source": "BRIDGE", "target": "R1", "bandwidth": 100, "latency": 10 },
         { "id": "B_R2", "source": "BRIDGE", "target": "R2", "bandwidth": 100, "latency": 10 }
       ]
+    },
+    {
+      "name": "Blank Sandbox",
+      "description": "An empty space for building your own custom topology from scratch.",
+      "nodes": [],
+      "links": []
     }
   ]
 }

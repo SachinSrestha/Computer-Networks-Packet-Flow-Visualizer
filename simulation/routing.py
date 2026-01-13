@@ -7,6 +7,7 @@ from typing import List, Dict, Optional
 import heapq
 from collections import deque
 
+import numpy as np
 from core.network import Network
 
 
@@ -133,6 +134,19 @@ class DijkstraRouting(RoutingAlgorithm):
     
     def update_routing_tables(self):
         """Update routing tables for all nodes using Dijkstra's algorithm"""
+        # First clear all existing routing tables to avoid stale data
+        for node in self.network.nodes.values():
+            node.routing_table.clear()
+            
+        # Update link costs based on distance (if nodes were dragged)
+        for link in self.network.links.values():
+            n1 = self.network.get_node(link.source_id)
+            n2 = self.network.get_node(link.target_id)
+            if n1 and n2:
+                dist = float(np.linalg.norm(n1.position - n2.position))
+                link.latency = max(1.0, dist * 5.0)
+                link.weight = link.latency
+            
         for source_id in self.network.nodes:
             for dest_id in self.network.nodes:
                 if source_id == dest_id:

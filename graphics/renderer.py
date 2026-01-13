@@ -42,6 +42,9 @@ class Renderer:
         # Node selection
         self.selected_node_id = None
         
+        # Link creation visual feedback
+        self.link_source_pos: Optional[Tuple[float, float]] = None
+        
         # Initialize OpenGL
         self._init_opengl()
     
@@ -109,6 +112,10 @@ class Renderer:
         # Draw packets (on top)
         for packet in packets:
             self._draw_packet(packet, network)
+            
+        # Draw link preview if in link mode
+        if self.link_source_pos:
+            self._draw_link_preview()
         
         # Draw statistics panel (in screen space)
         if stats:
@@ -264,6 +271,26 @@ class Renderer:
         
         # Reset active state
         link.is_active = False
+        
+    def _draw_link_preview(self):
+        """Draw a dashed line from source node to mouse cursor"""
+        if not self.link_source_pos:
+            return
+            
+        # Get mouse pos in world space
+        mx, my = self.screen_to_world(self.last_mouse_x, self.last_mouse_y)
+        
+        glColor4f(1.0, 1.0, 1.0, 0.5)
+        glLineWidth(2.0)
+        glEnable(GL_LINE_STIPPLE)
+        glLineStipple(1, 0xAAAA) # Dashed line
+        
+        glBegin(GL_LINES)
+        glVertex2f(self.link_source_pos[0], self.link_source_pos[1])
+        glVertex2f(mx, my)
+        glEnd()
+        
+        glDisable(GL_LINE_STIPPLE)
     
     def _draw_packet(self, packet: Packet, network: Network):
         """Draw a packet as a directional triangle/arrow"""

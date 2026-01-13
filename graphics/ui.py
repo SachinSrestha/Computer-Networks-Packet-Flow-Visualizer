@@ -22,39 +22,22 @@ class UI:
         self.show_stats = True
         
         # UI state
-        self.selected_node_id: Optional[str] = None
+        self.selected_node_id = None
         self.message = ""
         self.message_time = 0.0
+        self.status_message = "" # Persistent status like "Link Mode: Select Target"
     
-    def render_text_overlay(self, simulation_stats: Dict):
-        """
-        Render text overlay with statistics and controls
-        
-        Args:
-            simulation_stats: Dictionary of simulation statistics
-        """
-        # Note: This is a placeholder for text rendering
-        # In a full implementation, you would use a library like imgui or render text to texture
+    def render_text_overlay(self, simulation_stats):
+        """Render text overlay (placeholder)"""
         pass
     
-    def show_message(self, message: str, duration: float = 3.0):
-        """
-        Show a temporary message
-        
-        Args:
-            message: Message to display
-            duration: Duration in seconds
-        """
+    def show_message(self, message, duration=3.0):
+        """Show a temporary message"""
         self.message = message
         self.message_time = duration
     
-    def update(self, delta_time: float):
-        """
-        Update UI state
-        
-        Args:
-            delta_time: Time elapsed since last update
-        """
+    def update(self, delta_time):
+        """Update UI state"""
         if self.message_time > 0:
             self.message_time -= delta_time
             if self.message_time <= 0:
@@ -68,55 +51,60 @@ class UI:
         """Toggle statistics display"""
         self.show_stats = not self.show_stats
     
-    def get_help_text(self) -> str:
+    def get_help_text(self):
         """Get help text for controls"""
+        status = ""
+        if self.status_message:
+            status = "\n        STATUS: " + self.status_message + "\n        " + "-"*29 + "\n"
+            
         return """
         CONTROLS:
-        ─────────────────────────────
-        Mouse Drag    : Rotate camera
+        -----------------------------""" + status + """
+        Mouse Drag    : Pan camera (on space) or Drag Node
+        Mouse Click   : Select node
         Mouse Wheel   : Zoom in/out
         Space         : Pause/Resume
+        A             : Add Node at mouse position
+        L             : Create Link (Select source first, then press L, then click target)
+        DEL           : Delete Selected Node
+        X             : Clear Entire Topology
         R             : Reset simulation
         1-9           : Change speed
         N             : New packet
         H             : Toggle help
         S             : Toggle stats
         ESC           : Exit
+        -----------------------------
+        MANUAL TRAFFIC (Selected Node):
+        P             : Inject Single Packet
+        C             : Congest Once (Fill Queue)
+        V             : Toggle Constant Congestion
         """
     
-    def get_stats_text(self, stats: Dict) -> str:
-        """
-        Get formatted statistics text
+    def get_stats_text(self, stats):
+        """Get formatted statistics text"""
+        total = stats.get('total_generated', 0)
+        active = stats.get('active', 0)
+        delivered = stats.get('delivered', 0)
+        dropped = stats.get('dropped', 0)
+        rate = round(stats.get('delivery_rate', 0), 1)
+        latency = round(stats.get('average_latency', 0), 2)
+        sim_time = round(stats.get('simulation_time', 0), 1)
         
-        Args:
-            stats: Statistics dictionary
-            
-        Returns:
-            Formatted statistics string
-        """
-        return f"""
+        return """
         STATISTICS:
-        ─────────────────────────────
-        Total Generated : {stats.get('total_generated', 0)}
-        Active Packets  : {stats.get('active', 0)}
-        Delivered       : {stats.get('delivered', 0)}
-        Dropped         : {stats.get('dropped', 0)}
-        Delivery Rate   : {stats.get('delivery_rate', 0):.1f}%
-        Avg Latency     : {stats.get('average_latency', 0):.2f} ms
-        Sim Time        : {stats.get('simulation_time', 0):.1f} s
-        """
+        -----------------------------
+        Total Generated : {}
+        Active Packets  : {}
+        Delivered       : {}
+        Dropped         : {}
+        Delivery Rate   : {} %
+        Avg Latency     : {} ms
+        Sim Time        : {} s
+        """.format(total, active, delivered, dropped, rate, latency, sim_time)
     
-    def handle_key_input(self, key: int, action: int) -> Optional[str]:
-        """
-        Handle keyboard input
-        
-        Args:
-            key: GLFW key code
-            action: GLFW action (press, release, repeat)
-            
-        Returns:
-            Command string or None
-        """
+    def handle_key_input(self, key, action):
+        """Handle keyboard input"""
         if action != glfw.PRESS:
             return None
         
@@ -145,29 +133,36 @@ class UI:
             return "exit"
         elif glfw.KEY_1 <= key <= glfw.KEY_9:
             speed = key - glfw.KEY_0
-            return f"set_speed:{speed}"
-        elif key == glfw.KEY_EQUAL or key == glfw.KEY_KP_ADD:  # + key
+            return "set_speed:" + str(speed)
+        elif key == glfw.KEY_A:
+            return "add_node"
+        elif key == glfw.KEY_L:
+            return "start_link"
+        elif key == glfw.KEY_DELETE:
+            return "remove_node"
+        elif key == glfw.KEY_X:
+            return "clear_topology"
+        elif key == glfw.KEY_EQUAL or key == glfw.KEY_KP_ADD:
             return "speed_up"
-        elif key == glfw.KEY_MINUS or key == glfw.KEY_KP_SUBTRACT:  # - key
+        elif key == glfw.KEY_MINUS or key == glfw.KEY_KP_SUBTRACT:
             return "speed_down"
         
         return None
     
-    def print_console_stats(self, stats: Dict):
-        """
-        Print statistics to console
+    def print_console_stats(self, stats):
+        """Print statistics to console"""
+        rate = round(stats.get('delivery_rate', 0), 2)
+        latency = round(stats.get('average_latency', 0), 2)
+        sim_time = round(stats.get('simulation_time', 0), 2)
         
-        Args:
-            stats: Statistics dictionary
-        """
         print("\n" + "="*50)
         print("NETWORK PACKET FLOW VISUALIZER - STATISTICS")
         print("="*50)
-        print(f"Total Packets Generated : {stats.get('total_generated', 0)}")
-        print(f"Active Packets          : {stats.get('active', 0)}")
-        print(f"Delivered Packets       : {stats.get('delivered', 0)}")
-        print(f"Dropped Packets         : {stats.get('dropped', 0)}")
-        print(f"Delivery Rate           : {stats.get('delivery_rate', 0):.2f}%")
-        print(f"Average Latency         : {stats.get('average_latency', 0):.2f} ms")
-        print(f"Simulation Time         : {stats.get('simulation_time', 0):.2f} s")
+        print("Total Packets Generated : " + str(stats.get('total_generated', 0)))
+        print("Active Packets          : " + str(stats.get('active', 0)))
+        print("Delivered Packets       : " + str(stats.get('delivered', 0)))
+        print("Dropped Packets         : " + str(stats.get('dropped', 0)))
+        print("Delivery Rate           : " + str(rate) + "%")
+        print("Average Latency         : " + str(latency) + " ms")
+        print("Simulation Time         : " + str(sim_time) + " s")
         print("="*50 + "\n")
